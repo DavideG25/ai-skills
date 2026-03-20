@@ -9,8 +9,6 @@ description: >
   "test di regressione", "regression tests", "cosa potrebbe rompersi", "what could break",
   or any question about Salesforce process flow, execution order, or change impact.
   Works for developers AND functional users.
-context: fork
-allowed-tools: Task, Read, Write, Grep, Glob, Bash
 ---
 
 # SF Process Discovery — Orchestrator
@@ -20,13 +18,13 @@ You run in a **forked context**. The user asked: **$ARGUMENTS**
 ## Dynamic context
 
 - Project info: !`cat sfdx-project.json 2>/dev/null | head -5`
-- Map timestamp: !`stat -c %Y .claude/sf-execution-map.md 2>/dev/null || echo "0"`
-- Last relevant commit: !`git log -1 --format="%ct" -- "*/triggers/*" "*/flows/*" "*/validationRules/*" 2>/dev/null || echo "0"`
+- Map date: !`stat -c %y .claude/sf-execution-map.md 2>/dev/null | cut -d' ' -f1 || echo "none"`
+- Today: !`date +%Y-%m-%d`
 
-Compare map timestamp vs last relevant commit:
-- If map is newer → it's still valid, use it
-- If commit is newer → map is stale, rescan
-- If map timestamp is 0 → no map exists, full scan needed
+Compare map date vs today:
+- If map was created/updated today → it's valid, use it
+- If map is older than today → it's stale, rescan
+- If map date is "none" → no map exists, full scan needed
 
 ## Step 0: Parse the question
 
@@ -123,6 +121,9 @@ If you modify [the thing asked about]:
 Focus on process/functional tests: scenarios to verify end-to-end behavior, business rules, and edge cases.
 - [ ] [Scenario — given X happens, verify Y is the outcome]
 - [ ] ...
+
+**IMPORTANT**: only include test cases that are actually reachable from the specific process described by the user.
+If a code path exists but cannot be triggered from this specific entry point (e.g. a field that cannot be set during manual creation from UI, a condition only reachable via API/integration), **exclude it** from the checklist or mark it explicitly as `[N/A — not reachable from this process]`.
 
 If relevant, also include technical checks (e.g. a specific field is populated, a record is created):
 - [ ] [Technical check — optional]
