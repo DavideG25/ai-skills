@@ -18,13 +18,6 @@ You run in a **forked context**. The user asked: **$ARGUMENTS**
 ## Dynamic context
 
 - Project info: !`cat sfdx-project.json 2>/dev/null | head -5`
-- Map date: !`stat -c %y .claude/sf-execution-map.md 2>/dev/null | cut -d' ' -f1 || echo "none"`
-- Today: !`date +%Y-%m-%d`
-
-Compare map date vs today:
-- If map was created/updated today → it's valid, use it
-- If map is older than today → it's stale, rescan
-- If map date is "none" → no map exists, full scan needed
 
 ## Step 0: Parse the question
 
@@ -38,10 +31,12 @@ If the user asked in Italian, respond in Italian. In English, respond in English
 
 ## Step 1: Check saved map
 
-If `.claude/sf-execution-map.md` exists AND is fresh (per timestamp comparison):
-- Read the relevant section for this Object + Event
-- Skip to Step 3 if the scenario is already mapped
-- If this specific scenario isn't mapped yet, proceed to Step 2
+Read `.claude/sf-execution-map.md` using the Read tool (not bash).
+- Extract the date from the `## Last updated: YYYY-MM-DD...` header
+- Compare it with today's date (you know today's date from your context)
+- If the map is from today AND contains a section for this Object + Event → use it, skip to Step 5
+- If the map is older than today, OR the scenario isn't mapped → proceed to Step 2 (full rescan)
+- If the file doesn't exist → proceed to Step 2
 
 ## Step 2: Launch parallel scanners
 

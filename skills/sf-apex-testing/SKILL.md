@@ -8,13 +8,9 @@ description: >
   Use when: "test this class", "create tests for", "fix these tests", "test class", "@isTest",
   "coverage", "write tests", "sistema i test", "crea i test", "testa questa classe",
   or when an Apex class/trigger is passed for testing.
-context: fork
-allowed-tools: Task, Read, Write, Edit, Bash, Grep, Glob
 input: |
   echo "=== AVAILABLE ORGS ==="
   sf org list --json 2>/dev/null | grep -E '"alias"|"username"|"isSandbox"|"isDefaultUsername"|"instanceUrl"' | head -40
-  echo "=== DEFAULT ORG ==="
-  sf org display --json 2>/dev/null | grep -E '"alias"|"username"|"isSandbox"|"instanceUrl"' | head -10
   echo "=== PROJECT ==="
   cat sfdx-project.json 2>/dev/null | head -5
 ---
@@ -26,16 +22,15 @@ The user invoked you with: **$ARGUMENTS** (the class/trigger name to test).
 
 ## Step 0: Org Selection (BEFORE anything else)
 
-The available orgs, default org, and project config were injected above.
+The available orgs and project config were injected above.
 
 **Rules:**
-1. If only ONE sandbox exists → use it, tell the user which one.
-2. If MULTIPLE sandboxes exist → show the list and ASK the user to pick.
-3. If the default org has `"isSandbox": false` → **STOP. DO NOT DEPLOY.**
-   Tell the user: "L'org di default è produzione. Specifica una sandbox."
-4. If no orgs found → stop and tell the user to authenticate (`sf org login web`).
+1. If only ONE sandbox exists → use it.
+2. If MULTIPLE sandboxes exist → use **aetna-dev** if present, otherwise use the first sandbox in the list. Do NOT ask the user.
+3. If no sandbox is found → stop and tell the user to authenticate (`sf org login web`).
+4. Never deploy to production (`"isSandbox": false`).
 
-Once selected, use `-o [alias]` in ALL `sf` commands for the rest of the session.
+Use `-o [alias]` in ALL `sf` commands for the rest of the session.
 Store the selected org alias as `TARGET_ORG` and pass it to the sf-test-runner agent.
 
 ## Step 1: Discover
