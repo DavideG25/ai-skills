@@ -26,9 +26,9 @@ find . -name "$ARGUMENTS.cls" -o -name "$ARGUMENTS.trigger" -o -name "$ARGUMENTS
 
 If not found, try a partial match and ask the user to confirm.
 
-## Step 2: Launch agents in parallel
+## Step 2: Analyze content and dependencies
 
-Spawn both agents at the same time using Task():
+**If Task tool is available** — spawn both agents at the same time using Task():
 
 **Agent A — Content analysis:**
 - If Apex class or trigger → **sf-source-analyzer** with file path
@@ -37,6 +37,18 @@ Spawn both agents at the same time using Task():
 **Agent B — sf-dependency-scanner** with component name and type
 
 Wait for both to return.
+
+**If Task tool is NOT available** — run sequentially yourself using Read, Grep, Glob:
+
+**Content analysis:**
+- If Apex class or trigger: read the full file. Extract: purpose, key behaviors, branching conditions (with line numbers), external dependencies (SOQL, DML, service calls), data requirements, async/callout patterns.
+- If Flow: read the XML. Extract: `<processType>`, `<triggerType>`, entry conditions from `<start><filters>`, fields modified, actions performed (`<recordUpdates>`, `<recordCreates>`, `<actionCalls>`).
+
+**Dependency scan:**
+- Direct dependencies: already extracted in the content analysis step above.
+- Inverse dependencies:
+  - For Apex class/trigger: `Grep "ComponentName"` in all `*.cls` and `*.trigger` files, excluding the component itself and its test class. Read ±5 lines of context for each match.
+  - For Flow: `Grep "ComponentName"` in `*.cls` (Flow.Interview calls) and in other `*.flow-meta.xml` (subflow elements).
 
 ## Step 3: Build the document
 

@@ -49,13 +49,21 @@ Read the source class directly. Classify it:
 - Read existing test class if present
 - Go directly to Step 3
 
-**If COMPLEX class** — spawn in parallel using Task():
+**If COMPLEX class:**
+
+**If Task tool is available** — spawn in parallel using Task():
 
 1. **sf-source-analyzer** — Source class path → behavioral summary, branches, dependencies
 2. **sf-data-scanner** — Object name → data patterns, factory methods, custom settings
 3. **sf-test-analyzer** — Test class path (skip if none) → keep/fix/rewrite report
 
 Wait for all to return.
+
+**If Task tool is NOT available** — run sequentially yourself using Read, Grep, Glob:
+
+1. **Source analysis**: read the full source file. Extract: purpose, key behaviors, branching conditions (with line numbers), external dependencies (SOQL, DML, service calls), data requirements, async/callout patterns.
+2. **Data patterns**: search for the main object name in existing test classes (`Grep "ObjectName" in *Test*.cls`). Look for factory methods, custom settings references, required field assignments. Note what data setup is already used.
+3. **Existing test analysis**: if a test class exists, read it fully. Classify each test method as: keep as-is (passes and covers real behavior), fix (assertion or setup issue), rewrite (wrong or missing logic), or gap (behavior not covered).
 
 ## Step 3: Reason
 

@@ -38,9 +38,9 @@ Read `.claude/sf-execution-map.md` using the Read tool (not bash).
 - If the map is older than today, OR the scenario isn't mapped → proceed to Step 2 (full rescan)
 - If the file doesn't exist → proceed to Step 2
 
-## Step 2: Launch parallel scanners
+## Step 2: Scan all automations
 
-Spawn ALL simultaneously using Task(). Each runs as `agent: Explore` (read-only):
+**If Task tool is available** — spawn ALL simultaneously using Task(). Each runs as `agent: Explore` (read-only):
 
 1. **sf-trigger-scanner** — Object + scenario
    → Matching triggers, conditions, fields read/written, external calls
@@ -64,6 +64,16 @@ Spawn ALL simultaneously using Task(). Each runs as `agent: Explore` (read-only)
    → Legacy Process Builder processes, criteria matched, fields written
 
 Wait for all to return.
+
+**If Task tool is NOT available** — run sequentially yourself using Read, Grep, Glob:
+
+1. **Triggers**: `Glob "*.trigger"` under `*/triggers/*`. For each matching the object name, read it fully. Note entry conditions, fields read/written, external calls.
+2. **Flows**: `Glob "*.flow-meta.xml"`. For each, read XML and check `<processType>`, `<triggerType>`, `<object>`, and `<start><filters>`. Only include flows on the target object. Note entry conditions, fields modified, actions.
+3. **Validation rules**: `Glob "*ObjectName*.validationRule-meta.xml"` and `find . -path "*/validationRules/*ObjectName*"`. Read each, extract condition formula and error message.
+4. **Integrations**: `Grep "callout:|HttpRequest|EventBus|OutboundMessage" in *.cls and *.trigger` scoped to files already identified. Note any callouts or platform event publishes.
+5. **Workflow rules**: `Glob "*ObjectName*.workflow-meta.xml"`. Read and extract active rules with field updates.
+6. **Approval processes**: `Glob "*ObjectName*.approvalProcess-meta.xml"`. Read and note entry criteria, actions, record lock behavior.
+7. **Process Builder**: `Glob "*.flow-meta.xml"` filtering `<processType>Workflow</processType>`. Read matching ones, extract criteria and actions.
 
 ## Step 3: Build execution order
 
@@ -91,7 +101,10 @@ For each written field, ask: does this trigger something else?
 - Another trigger/flow on the SAME object (re-entry)?
 - DML on ANOTHER object → triggering that object's automations?
 
-If yes, spawn targeted scanners for the new object + event.
+**If Task tool is available** — spawn targeted scanners for the new object + event.
+
+**If Task tool is NOT available** — for each new object identified, repeat Step 2's sequential scan for that object, focused only on the written field as the triggering event.
+
 Repeat up to **3 levels deep**. Beyond that, note "further chains possible."
 
 In **quick mode**: only follow 1 level.
