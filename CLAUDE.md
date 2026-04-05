@@ -61,3 +61,4 @@ Il repo è pubblico in lettura. Per contribuire:
 - **Merge su master**: richiede approvazione del maintainer
 
 Push diretti su master sono bloccati.
+test
