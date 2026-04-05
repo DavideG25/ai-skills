@@ -51,3 +51,4 @@ Le skills si aggiornano indipendentemente. Sostituisci i file copiati con le ver
 - `sf-new-trigger` — crea trigger completo con bypass metadata, deploy e test automatici *(bloccata — in attesa di info sul bypass metadata)*
 
 Vedi `ROADMAP` per il dettaglio completo.
+
