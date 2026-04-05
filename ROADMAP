@@ -16,10 +16,13 @@
 Workflow git per progetti Salesforce con strategia multi-branch. Riconosce l'intento dalla frase in linguaggio naturale, esegue o restituisce il comando (CMD_ONLY). Auto-discovery della configurazione branch al primo run.
 
 ### `sf-apex-testing`
-Crea o corregge test class Apex. Spawna agenti paralleli per analizzare il sorgente, i pattern dati e i test esistenti. Deploy su sandbox in loop fino a coverage ok. Si auto-aggiorna in `.claude/sf-test-learnings.md`.
+Crea o corregge test class Apex. Spawna agenti paralleli per analizzare il sorgente, i pattern dati e i test esistenti. Deploy su sandbox in loop fino a coverage ok. Si auto-aggiorna in `.claude/sf-test-learnings.md`. Legge `.claude/rules/apex-rules.md` e `testing-rules.md` se presenti.
 
 ### `sf-process-discovery`
-Mappa le automazioni (trigger, flow, validation rules, integrazioni) che scattano su un oggetto/evento. Segue le catene indirette fino a 3 livelli. Salva la mappa in `.claude/sf-execution-map.md` con freshness check.
+Mappa le automazioni (trigger, flow, validation rules, integrazioni) che scattano su un oggetto/evento. Segue le catene indirette fino a 3 livelli. Salva la mappa in `.claude/sf-execution-map.md` con freshness check. Legge `.claude/context/[Object].md` se presente.
+
+### `sf-class-explorer`
+Analizza una classe Apex, trigger o Flow e produce un documento strutturato (sezione funzionale + tecnica). Salva il risultato in `docs/` e in `.claude/context/` per uso futuro. Aggiorna `_index.md` dopo ogni analisi.
 
 ### `comprimi-pdf`
 Utility generale per comprimere PDF pesanti da mandare via email.
@@ -70,7 +73,8 @@ Testing:
 **Output:** report unico strutturato in sezioni, solo quelle selezionate dall'utente.
 
 **File da creare:**
-- `skills/sf-apex-review/SKILL.md` ✅ (già scritto)
+- `skills/sf-apex-review/SKILL.md`
+- `skills/sf-apex-review/README.md`
 - `agents/sf-code-analyzer.md`
 - `agents/sf-optimization-analyzer.md`
 
@@ -80,7 +84,7 @@ Testing:
 Crea un nuovo trigger completo seguendo il framework del progetto. Verifica e installa il bypass metadata se non esiste nell'org. Deploy e test automatici.
 
 **Flow:**
-1. Legge il framework trigger da `CLAUDE.md`
+1. Legge il framework trigger da `.claude/rules/apex-rules.md`
 2. Spawna `sf-bypass-checker` → verifica se il bypass metadata esiste nell'org
    - Se non esiste: `sf-metadata-deployer` installa il metadata statico + aggiunge il record
    - Se esiste: aggiunge solo il nuovo record
@@ -95,12 +99,13 @@ Crea un nuovo trigger completo seguendo il framework del progetto. Verifica e in
 - `sf-source-analyzer` (già esistente)
 - `sf-test-runner` (già esistente)
 
-**Da definire prima di implementare:**
-- Schema del bypass metadata usato in Technogym (Custom Metadata vs Custom Setting)
-- Template XML del metadata statico da distribuire con la skill
+**⚠️ Bloccata — in attesa di:**
+- Schema del bypass metadata (Custom Metadata o Custom Setting? Nome API?)
+- Template XML del metadata da distribuire con la skill
 
 **File da creare:**
 - `skills/sf-new-trigger/SKILL.md`
+- `skills/sf-new-trigger/README.md`
 - `skills/sf-new-trigger/metadata-templates/` (XML del bypass metadata)
 - `agents/sf-bypass-checker.md`
 - `agents/sf-metadata-deployer.md`
@@ -108,26 +113,51 @@ Crea un nuovo trigger completo seguendo il framework del progetto. Verifica e in
 ---
 
 ### `sf-init-project`
-Analizza un repo Salesforce e genera la configurazione Claude Code completa: `CLAUDE.md` + `.claude/rules/` + `.claude/commands/`.
+Analizza un repo Salesforce e genera la configurazione Claude Code completa: `CLAUDE.md` snello + `.claude/rules/` + `.claude/context/`.
 
-**Da definire prima di implementare:**
-- Architettura dei file generati (CLAUDE.md snello + file modulari on-demand)
-- Come gestire repo grandi senza far diventare CLAUDE.md troppo pesante
-- Come aggiornarlo nel tempo senza riscrivere tutto
+**Comportamento adattivo:**
+- **Repo esistente** → scansiona il codice e *scopre* le convenzioni (naming, pattern trigger, logging, test)
+- **Repo nuovo (nessuna classe Apex)** → *chiede* le convenzioni all'utente in modo interattivo e le scrive nei file rules
 
-**Idea architettura:**
+**Architettura output:**
 ```
-CLAUDE.md                  ← leggero: org type, API version, comandi deploy, oggetti chiave (3 righe ciascuno)
-.claude/rules/             ← apex-rules.md, metadata-rules.md, testing-rules.md
-.claude/commands/          ← new-trigger.md, deploy.md, review-apex.md
-.claude/context/           ← AccountHandler.context.md, OpportunityService.context.md (on-demand)
+CLAUDE.md                        ← leggero: org type, API version, comandi deploy, oggetti chiave (1-2 righe ciascuno)
+.claude/rules/
+  apex-rules.md                  ← naming, pattern trigger/handler/service, logging, error handling
+  testing-rules.md               ← coverage minima, data setup, cosa evitare
+  metadata-rules.md              ← API names, picklist, field conventions
+.claude/context/
+  _index.md                      ← indice di tutti i componenti analizzati (caricato dalle skill, non da CLAUDE.md)
+  [ComponentName].md             ← contesto compatto per singolo componente, caricato on-demand
 ```
+
+**Regola chiave:** `CLAUDE.md` deve restare leggero — viene caricato ad ogni sessione e ruba contesto. I dettagli stanno in `.claude/` e vengono letti dalle skill solo quando servono.
 
 **Sub-agenti paralleli:**
 - `sf-folder-scanner` (nuovo) — struttura repo, sfdx-project.json, package.json
 - `sf-apex-pattern-scanner` (nuovo) — framework trigger, naming conventions, logging pattern
 - `sf-integration-scanner` (già esistente) — named credentials, remote sites, callout patterns
 - `sf-test-analyzer` (già esistente) — convenzioni test, coverage minima
+
+**File da creare:**
+- `skills/sf-init-project/SKILL.md`
+- `skills/sf-init-project/README.md`
+- `agents/sf-folder-scanner.md`
+- `agents/sf-apex-pattern-scanner.md`
+
+---
+
+### `sf-documentation`
+Documenta un oggetto Salesforce o un processo di business. Input: nome oggetto o descrizione processo. Output: documento `.md` + `.docx` opzionale con sezione tecnica e sezione funzionale.
+
+**Sub-agenti:**
+- `sf-object-scanner` (nuovo) — legge metadata oggetto: campi, relazioni, picklist, validation rules
+- Tutti gli scanner esistenti di `sf-process-discovery` per la parte automazioni
+
+**File da creare:**
+- `skills/sf-documentation/SKILL.md`
+- `skills/sf-documentation/README.md`
+- `agents/sf-object-scanner.md`
 
 ---
 
@@ -143,12 +173,13 @@ Procedura per allineare i branch git con lo stato reale delle org Salesforce (re
 
 | File | Usato da | Accesso |
 |---|---|---|
-| `sf-source-analyzer` | sf-apex-testing, sf-new-trigger | Explore |
+| `sf-source-analyzer` | sf-apex-testing, sf-class-explorer, sf-new-trigger | Explore |
 | `sf-data-scanner` | sf-apex-testing | Explore |
 | `sf-test-analyzer` | sf-apex-testing, sf-init-project | Explore |
 | `sf-test-runner` | sf-apex-testing, sf-new-trigger | Write/Bash |
+| `sf-dependency-scanner` | sf-class-explorer | Explore |
 | `sf-trigger-scanner` | sf-process-discovery | Explore |
-| `sf-flow-scanner` | sf-process-discovery | Explore |
+| `sf-flow-scanner` | sf-process-discovery, sf-class-explorer | Explore |
 | `sf-validation-scanner` | sf-process-discovery | Explore |
 | `sf-integration-scanner` | sf-process-discovery, sf-init-project | Explore |
 | `sf-workflow-scanner` | sf-process-discovery | Explore |
