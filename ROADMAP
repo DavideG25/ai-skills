@@ -1,0 +1,156 @@
+# sf-ai-skills — Roadmap
+
+## Principi generali
+
+- **Real problems first, then generalize** — si lavora su problemi reali, poi si estrae la skill
+- **Fewer rules, more judgment** — l'agente ragiona, non segue checklist rigide
+- **Least privilege** — agenti di analisi sono Explore/read-only; solo il runner ha Write/Bash
+- **Self-learning artifacts** — file `.claude/` committati nel repo per condividere conoscenza col team
+- **Graceful degradation** — fallback path quando Task() non è disponibile
+
+---
+
+## Skill in produzione ✅
+
+### `sf-git-workflow`
+Workflow git per progetti Salesforce con strategia multi-branch. Riconosce l'intento dalla frase in linguaggio naturale, esegue o restituisce il comando (CMD_ONLY). Auto-discovery della configurazione branch al primo run.
+
+### `sf-apex-testing`
+Crea o corregge test class Apex. Spawna agenti paralleli per analizzare il sorgente, i pattern dati e i test esistenti. Deploy su sandbox in loop fino a coverage ok. Si auto-aggiorna in `.claude/sf-test-learnings.md`.
+
+### `sf-process-discovery`
+Mappa le automazioni (trigger, flow, validation rules, integrazioni) che scattano su un oggetto/evento. Segue le catene indirette fino a 3 livelli. Salva la mappa in `.claude/sf-execution-map.md` con freshness check.
+
+### `comprimi-pdf`
+Utility generale per comprimere PDF pesanti da mandare via email.
+
+---
+
+## Skill definite — da implementare 🔜
+
+### `sf-apex-review`
+Review interattiva del codice Apex. Fa due domande all'utente prima di partire, poi spawna agenti in parallelo in base alle risposte.
+
+**Domande:**
+1. Scope → tutta la classe / solo git diff del branch
+2. Cosa analizzare (multi-select) → problematiche tecniche / dipendenze esterne / ottimizzazioni
+
+**Sub-agenti:**
+- `sf-code-analyzer` (nuovo) — analisi statica del codice
+- `sf-process-discovery` (già esistente) — dipendenze esterne sull'oggetto
+- `sf-optimization-analyzer` (nuovo) — suggerimenti con stima di impatto
+
+**Checklist sf-code-analyzer (14 punti):**
+
+Governor Limits:
+- SOQL dentro loop
+- DML dentro loop
+- Query multiple sullo stesso oggetto che potrebbero essere una sola
+
+Bulkification:
+- Logica per record singolo (Trigger.new[0])
+- Tipo collezione errato (List dove serve Map o Set)
+- Aggregazioni in Apex invece che in SOQL
+
+Null Safety:
+- Accesso a campi relazionali senza null check (account.Owner.Email)
+- Trigger context non verificato (before/after, insert/update)
+- Risultati SOQL non controllati prima dell'accesso
+
+Pattern e struttura:
+- Logica dentro il trigger invece che nell'handler
+- Hardcoded IDs/valori → dovrebbero stare in Custom Metadata o Custom Labels
+- Missing try/catch sui callout
+- Metodi troppo lunghi o con responsabilità multiple
+
+Testing:
+- @SeeAllData=true
+- Test senza asserzioni sul comportamento reale
+
+**Output:** report unico strutturato in sezioni, solo quelle selezionate dall'utente.
+
+**File da creare:**
+- `skills/sf-apex-review/SKILL.md` ✅ (già scritto)
+- `agents/sf-code-analyzer.md`
+- `agents/sf-optimization-analyzer.md`
+
+---
+
+### `sf-new-trigger`
+Crea un nuovo trigger completo seguendo il framework del progetto. Verifica e installa il bypass metadata se non esiste nell'org. Deploy e test automatici.
+
+**Flow:**
+1. Legge il framework trigger da `CLAUDE.md`
+2. Spawna `sf-bypass-checker` → verifica se il bypass metadata esiste nell'org
+   - Se non esiste: `sf-metadata-deployer` installa il metadata statico + aggiunge il record
+   - Se esiste: aggiunge solo il nuovo record
+3. Genera Trigger + Handler + Service seguendo il pattern trovato
+4. Spawna `sf-source-analyzer` sul codice generato (auto-review)
+5. Spawna `sf-test-runner` → deploy + test loop
+6. Commit di tutto (codice + eventuale metadata bypass)
+
+**Sub-agenti:**
+- `sf-bypass-checker` (nuovo) — query all'org per verificare il bypass metadata
+- `sf-metadata-deployer` (nuovo) — deploya metadata statico da `skills/sf-new-trigger/metadata-templates/`
+- `sf-source-analyzer` (già esistente)
+- `sf-test-runner` (già esistente)
+
+**Da definire prima di implementare:**
+- Schema del bypass metadata usato in Technogym (Custom Metadata vs Custom Setting)
+- Template XML del metadata statico da distribuire con la skill
+
+**File da creare:**
+- `skills/sf-new-trigger/SKILL.md`
+- `skills/sf-new-trigger/metadata-templates/` (XML del bypass metadata)
+- `agents/sf-bypass-checker.md`
+- `agents/sf-metadata-deployer.md`
+
+---
+
+### `sf-init-project`
+Analizza un repo Salesforce e genera la configurazione Claude Code completa: `CLAUDE.md` + `.claude/rules/` + `.claude/commands/`.
+
+**Da definire prima di implementare:**
+- Architettura dei file generati (CLAUDE.md snello + file modulari on-demand)
+- Come gestire repo grandi senza far diventare CLAUDE.md troppo pesante
+- Come aggiornarlo nel tempo senza riscrivere tutto
+
+**Idea architettura:**
+```
+CLAUDE.md                  ← leggero: org type, API version, comandi deploy, oggetti chiave (3 righe ciascuno)
+.claude/rules/             ← apex-rules.md, metadata-rules.md, testing-rules.md
+.claude/commands/          ← new-trigger.md, deploy.md, review-apex.md
+.claude/context/           ← AccountHandler.context.md, OpportunityService.context.md (on-demand)
+```
+
+**Sub-agenti paralleli:**
+- `sf-folder-scanner` (nuovo) — struttura repo, sfdx-project.json, package.json
+- `sf-apex-pattern-scanner` (nuovo) — framework trigger, naming conventions, logging pattern
+- `sf-integration-scanner` (già esistente) — named credentials, remote sites, callout patterns
+- `sf-test-analyzer` (già esistente) — convenzioni test, coverage minima
+
+---
+
+## Skill scartate ❌
+
+### `sf-baseline`
+Procedura per allineare i branch git con lo stato reale delle org Salesforce (retrieve + commit + push).
+**Motivo:** troppo distruttiva, rischio elevato. Archiviata.
+
+---
+
+## Agenti disponibili
+
+| File | Usato da | Accesso |
+|---|---|---|
+| `sf-source-analyzer` | sf-apex-testing, sf-new-trigger | Explore |
+| `sf-data-scanner` | sf-apex-testing | Explore |
+| `sf-test-analyzer` | sf-apex-testing, sf-init-project | Explore |
+| `sf-test-runner` | sf-apex-testing, sf-new-trigger | Write/Bash |
+| `sf-trigger-scanner` | sf-process-discovery | Explore |
+| `sf-flow-scanner` | sf-process-discovery | Explore |
+| `sf-validation-scanner` | sf-process-discovery | Explore |
+| `sf-integration-scanner` | sf-process-discovery, sf-init-project | Explore |
+| `sf-workflow-scanner` | sf-process-discovery | Explore |
+| `sf-approval-scanner` | sf-process-discovery | Explore |
+| `sf-processbuilder-scanner` | sf-process-discovery | Explore |
