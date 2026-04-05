@@ -24,61 +24,15 @@ Mappa le automazioni (trigger, flow, validation rules, integrazioni) che scattan
 ### `sf-code-explorer`
 Analizza una classe Apex, trigger o Flow e produce un documento strutturato (sezione funzionale + tecnica). Salva il risultato in `docs/` e in `.claude/context/` per uso futuro. Aggiorna `_index.md` dopo ogni analisi.
 
+### `sf-code-review`
+Review interattiva del codice Apex. Fa due domande (scope + focus), poi analizza solo le sezioni selezionate: problemi tecnici, dipendenze esterne, ottimizzazioni. Report strutturato con severità e raccomandazione finale. Non descrive il codice — trova solo problemi e miglioramenti.
+
 ### `comprimi-pdf`
 Utility generale per comprimere PDF pesanti da mandare via email.
 
 ---
 
 ## Skill definite — da implementare 🔜
-
-### `sf-code-review`
-Review interattiva del codice Apex. Fa due domande all'utente prima di partire, poi spawna agenti in parallelo in base alle risposte.
-
-**Domande:**
-1. Scope → tutta la classe / solo git diff del branch
-2. Cosa analizzare (multi-select) → problematiche tecniche / dipendenze esterne / ottimizzazioni
-
-**Sub-agenti:**
-- `sf-code-analyzer` (nuovo) — analisi statica del codice
-- `sf-process-discovery` (già esistente) — dipendenze esterne sull'oggetto
-- `sf-optimization-analyzer` (nuovo) — suggerimenti con stima di impatto
-
-**Checklist sf-code-analyzer (14 punti):**
-
-Governor Limits:
-- SOQL dentro loop
-- DML dentro loop
-- Query multiple sullo stesso oggetto che potrebbero essere una sola
-
-Bulkification:
-- Logica per record singolo (Trigger.new[0])
-- Tipo collezione errato (List dove serve Map o Set)
-- Aggregazioni in Apex invece che in SOQL
-
-Null Safety:
-- Accesso a campi relazionali senza null check (account.Owner.Email)
-- Trigger context non verificato (before/after, insert/update)
-- Risultati SOQL non controllati prima dell'accesso
-
-Pattern e struttura:
-- Logica dentro il trigger invece che nell'handler
-- Hardcoded IDs/valori → dovrebbero stare in Custom Metadata o Custom Labels
-- Missing try/catch sui callout
-- Metodi troppo lunghi o con responsabilità multiple
-
-Testing:
-- @SeeAllData=true
-- Test senza asserzioni sul comportamento reale
-
-**Output:** report unico strutturato in sezioni, solo quelle selezionate dall'utente.
-
-**File da creare:**
-- `skills/sf-code-review/SKILL.md`
-- `skills/sf-code-review/README.md`
-- `agents/sf-code-analyzer.md`
-- `agents/sf-optimization-analyzer.md`
-
----
 
 ### `sf-new-trigger`
 Crea un nuovo trigger completo seguendo il framework del progetto. Verifica e installa il bypass metadata se non esiste nell'org. Deploy e test automatici.
@@ -178,6 +132,8 @@ Procedura per allineare i branch git con lo stato reale delle org Salesforce (re
 | `sf-test-analyzer` | sf-apex-testing, sf-init-project | Explore |
 | `sf-test-runner` | sf-apex-testing, sf-new-trigger | Write/Bash |
 | `sf-dependency-scanner` | sf-code-explorer | Explore |
+| `sf-code-analyzer` | sf-code-review | Explore |
+| `sf-optimization-analyzer` | sf-code-review | Explore |
 | `sf-trigger-scanner` | sf-process-discovery | Explore |
 | `sf-flow-scanner` | sf-process-discovery, sf-code-explorer | Explore |
 | `sf-validation-scanner` | sf-process-discovery | Explore |

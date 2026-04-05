@@ -18,6 +18,7 @@ settings.json
 | `sf-git-workflow` | Gestisce branch e merge in linguaggio naturale | `skills/sf-git-workflow/README.md` |
 | `sf-process-discovery` | Mappa l'execution flow e l'impatto di un evento su un oggetto Salesforce | `skills/sf-process-discovery/README.md` |
 | `sf-code-explorer` | Spiega una classe/trigger/Flow e mappa le dipendenze, produce un documento | `skills/sf-code-explorer/README.md` |
+| `sf-code-review` | Review interattiva del codice Apex: problemi tecnici, dipendenze, ottimizzazioni | `skills/sf-code-review/README.md` |
 
 ## Come usare questo repo
 
