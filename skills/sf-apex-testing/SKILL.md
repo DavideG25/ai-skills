@@ -31,6 +31,16 @@ The user invoked you with: **$ARGUMENTS** (the class/trigger name to test).
 Use `-o [alias]` in ALL `sf` commands for the rest of the session.
 Store the selected org alias as `TARGET_ORG` and pass it to the sf-test-runner agent.
 
+## Step 0b: Load project rules and context
+
+Check for project-specific conventions before writing any code:
+
+1. If `.claude/rules/apex-rules.md` exists → read it. Apply these conventions when writing Apex code.
+2. If `.claude/rules/testing-rules.md` exists → read it. Apply these conventions when writing test classes (coverage thresholds, naming, data setup patterns).
+3. If `.claude/context/$ARGUMENTS.md` exists → read it. Use it to understand the class faster — don't re-derive what's already known.
+
+If none of these files exist, continue with defaults. They are optional enrichments, not blockers.
+
 ## Step 1: Discover + classify complexity
 
 Find the source file and existing test class:

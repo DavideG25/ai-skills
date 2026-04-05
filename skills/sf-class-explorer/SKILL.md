@@ -13,6 +13,17 @@ description: >
 You run in a **forked context** — isolated from the user's conversation.
 The user invoked you with: **$ARGUMENTS** (the component name to analyze).
 
+## Step 0: Load existing context
+
+Before analyzing, check if context already exists for this component:
+
+1. Read `.claude/context/_index.md` if it exists — scan for a line referencing $ARGUMENTS.
+2. If found, read `.claude/context/[ComponentName].md`.
+   - If the file exists and is complete, use it to enrich Step 3 (no need to re-derive what's already known).
+   - Do NOT skip Steps 1–2 entirely: always verify the source file hasn't changed since the context was written.
+
+If neither file exists, proceed normally — context will be created at the end.
+
 ## Step 1: Detect component type
 
 Determine what $ARGUMENTS refers to:
@@ -117,7 +128,32 @@ Explain the business purpose and when this component is involved.]
 Create `docs/` folder if it doesn't exist.
 Save the document as `docs/[ComponentName].md`.
 
-## Step 5: Generate .docx (optional)
+## Step 5: Update `.claude/context/`
+
+Save a compact version of the analysis (not the full formatted doc) to `.claude/context/[ComponentName].md`:
+
+```markdown
+# [ComponentName] — [type]
+## Purpose
+[1-2 sentences]
+## Key behaviors
+[bullet list]
+## Dependencies
+- Calls: [list]
+- Called by: [list]
+## Objects / Fields
+[list]
+## Last analyzed
+[date]
+```
+
+Then update `.claude/context/_index.md` — add or update the line for this component:
+```
+- [ComponentName] — [type] — [one-line description]
+```
+Create `_index.md` if it doesn't exist. Never overwrite existing entries for other components.
+
+## Step 6: Generate .docx (optional)
 
 Check if Pandoc is available:
 ```bash
@@ -127,7 +163,7 @@ pandoc --version 2>/dev/null | head -1
 If available: `pandoc docs/[ComponentName].md -o docs/[ComponentName].docx`
 If not: mention in the final message that only `.md` was saved.
 
-## Step 6: Deliver
+## Step 7: Deliver
 
 Return to the user:
 - Brief summary of what was found (2-3 sentences)

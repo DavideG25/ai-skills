@@ -29,8 +29,13 @@ Extract from $ARGUMENTS:
 If ambiguous, default to deep mode.
 If the user asked in Italian, respond in Italian. In English, respond in English.
 
-## Step 1: Check saved map
+## Step 1: Load context and check saved map
 
+**Load object context (if available):**
+If `.claude/context/[ObjectName].md` exists → read it. Use the dependencies, fields, and behaviors already mapped to focus the scan — don't re-derive what's already known.
+If `.claude/context/_index.md` exists → scan it for the object name to discover related components worth checking.
+
+**Check saved execution map:**
 Read `.claude/sf-execution-map.md` using the Read tool (not bash).
 - Extract the date from the `## Last updated: YYYY-MM-DD...` header
 - Compare it with today's date (you know today's date from your context)
