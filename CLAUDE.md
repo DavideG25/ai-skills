@@ -21,6 +21,7 @@ settings.json
 | `sf-code-review` | Review interattiva del codice Apex: problemi tecnici, dipendenze, ottimizzazioni | `skills/sf-code-review/README.md` |
 | `sf-documentation` | Documenta un oggetto Salesforce o un processo di business | `skills/sf-documentation/README.md` |
 | `sf-init-project` | Inizializza CLAUDE.md e `.claude/rules/` per un progetto Salesforce | `skills/sf-init-project/README.md` |
+| `comprimi-pdf` | Comprime PDF pesanti per invio via email | `skills/comprimi-pdf/README.md` |
 
 ## Come usare questo repo
 
@@ -47,4 +48,6 @@ Le skills si aggiornano indipendentemente. Sostituisci i file copiati con le ver
 *(nessuna skill in corso attualmente)*
 
 ### Backlog
-- `sf-documentation` — documenta un oggetto Salesforce o un processo di business (sezione tecnica + funzionale, output `.md` / `.docx`)
+- `sf-new-trigger` — crea trigger completo con bypass metadata, deploy e test automatici *(bloccata — in attesa di info sul bypass metadata)*
+
+Vedi `ROADMAP` per il dettaglio completo.
