@@ -21,7 +21,7 @@ Crea o corregge test class Apex. Spawna agenti paralleli per analizzare il sorge
 ### `sf-process-discovery`
 Mappa le automazioni (trigger, flow, validation rules, integrazioni) che scattano su un oggetto/evento. Segue le catene indirette fino a 3 livelli. Salva la mappa in `.claude/sf-execution-map.md` con freshness check. Legge `.claude/context/[Object].md` se presente.
 
-### `sf-class-explorer`
+### `sf-code-explorer`
 Analizza una classe Apex, trigger o Flow e produce un documento strutturato (sezione funzionale + tecnica). Salva il risultato in `docs/` e in `.claude/context/` per uso futuro. Aggiorna `_index.md` dopo ogni analisi.
 
 ### `comprimi-pdf`
@@ -31,7 +31,7 @@ Utility generale per comprimere PDF pesanti da mandare via email.
 
 ## Skill definite — da implementare 🔜
 
-### `sf-apex-review`
+### `sf-code-review`
 Review interattiva del codice Apex. Fa due domande all'utente prima di partire, poi spawna agenti in parallelo in base alle risposte.
 
 **Domande:**
@@ -73,8 +73,8 @@ Testing:
 **Output:** report unico strutturato in sezioni, solo quelle selezionate dall'utente.
 
 **File da creare:**
-- `skills/sf-apex-review/SKILL.md`
-- `skills/sf-apex-review/README.md`
+- `skills/sf-code-review/SKILL.md`
+- `skills/sf-code-review/README.md`
 - `agents/sf-code-analyzer.md`
 - `agents/sf-optimization-analyzer.md`
 
@@ -173,13 +173,13 @@ Procedura per allineare i branch git con lo stato reale delle org Salesforce (re
 
 | File | Usato da | Accesso |
 |---|---|---|
-| `sf-source-analyzer` | sf-apex-testing, sf-class-explorer, sf-new-trigger | Explore |
+| `sf-source-analyzer` | sf-apex-testing, sf-code-explorer, sf-new-trigger | Explore |
 | `sf-data-scanner` | sf-apex-testing | Explore |
 | `sf-test-analyzer` | sf-apex-testing, sf-init-project | Explore |
 | `sf-test-runner` | sf-apex-testing, sf-new-trigger | Write/Bash |
-| `sf-dependency-scanner` | sf-class-explorer | Explore |
+| `sf-dependency-scanner` | sf-code-explorer | Explore |
 | `sf-trigger-scanner` | sf-process-discovery | Explore |
-| `sf-flow-scanner` | sf-process-discovery, sf-class-explorer | Explore |
+| `sf-flow-scanner` | sf-process-discovery, sf-code-explorer | Explore |
 | `sf-validation-scanner` | sf-process-discovery | Explore |
 | `sf-integration-scanner` | sf-process-discovery, sf-init-project | Explore |
 | `sf-workflow-scanner` | sf-process-discovery | Explore |

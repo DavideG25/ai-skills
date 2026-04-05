@@ -1,4 +1,4 @@
-# sf-class-explorer
+# sf-code-explorer
 
 Analizza una classe Apex, un trigger o un Flow Salesforce e produce un documento strutturato con:
 - **Sezione funzionale**: cosa fa in linguaggio business, quando viene coinvolto, scenari chiave
@@ -9,10 +9,10 @@ Il documento viene salvato in `docs/[NomeComponente].md` e, se Pandoc è disponi
 ## Come si usa
 
 ```
-/sf-class-explorer AccountTriggerHandler
-/sf-class-explorer OpportunityUtils
-/sf-class-explorer QuoteApprovalFlow
-/sf-class-explorer spiega il trigger: ContactTrigger
+/sf-code-explorer AccountTriggerHandler
+/sf-code-explorer OpportunityUtils
+/sf-code-explorer QuoteApprovalFlow
+/sf-code-explorer spiega il trigger: ContactTrigger
 ```
 
 ## Output
@@ -46,7 +46,7 @@ Logica, dipendenze dirette e inverse, oggetti/campi, async
 ## Installazione
 
 Copia in `.claude/` del tuo progetto:
-- `skills/sf-class-explorer/` → `.claude/skills/sf-class-explorer/`
+- `skills/sf-code-explorer/` → `.claude/skills/sf-code-explorer/`
 - `agents/sf-source-analyzer.md` → `.claude/agents/`
 - `agents/sf-flow-scanner.md` → `.claude/agents/`
 - `agents/sf-dependency-scanner.md` → `.claude/agents/`

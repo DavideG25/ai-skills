@@ -17,7 +17,7 @@ settings.json
 | `sf-apex-testing` | Crea o corregge classi di test Apex in autonomia | `skills/sf-apex-testing/README.md` |
 | `sf-git-workflow` | Gestisce branch e merge in linguaggio naturale | `skills/sf-git-workflow/README.md` |
 | `sf-process-discovery` | Mappa l'execution flow e l'impatto di un evento su un oggetto Salesforce | `skills/sf-process-discovery/README.md` |
-| `sf-class-explorer` | Spiega una classe/trigger/Flow e mappa le dipendenze, produce un documento | `skills/sf-class-explorer/README.md` |
+| `sf-code-explorer` | Spiega una classe/trigger/Flow e mappa le dipendenze, produce un documento | `skills/sf-code-explorer/README.md` |
 
 ## Come usare questo repo
 
