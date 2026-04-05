@@ -30,6 +30,9 @@ Review interattiva del codice Apex. Fa due domande (scope + focus), poi analizza
 ### `sf-documentation`
 Produce un documento strutturato per un oggetto Salesforce o un processo di business. Sezione funzionale in linguaggio business + sezione tecnica con automazioni, campi, dipendenze. Output `.md` + `.docx` opzionale. Salva contesto in `.claude/context/` per uso futuro dalle altre skill.
 
+### `sf-init-project`
+Inizializza la configurazione Claude Code per un progetto Salesforce. Su repo esistente scopre le convenzioni dal codice. Su repo nuovo le chiede interattivamente. Genera `CLAUDE.md` leggero + `.claude/rules/` (apex, testing, metadata) + scaffold `.claude/context/_index.md`.
+
 ### `comprimi-pdf`
 Utility generale per comprimere PDF pesanti da mandare via email.
 
@@ -69,41 +72,6 @@ Crea un nuovo trigger completo seguendo il framework del progetto. Verifica e in
 
 ---
 
-### `sf-init-project`
-Analizza un repo Salesforce e genera la configurazione Claude Code completa: `CLAUDE.md` snello + `.claude/rules/` + `.claude/context/`.
-
-**Comportamento adattivo:**
-- **Repo esistente** → scansiona il codice e *scopre* le convenzioni (naming, pattern trigger, logging, test)
-- **Repo nuovo (nessuna classe Apex)** → *chiede* le convenzioni all'utente in modo interattivo e le scrive nei file rules
-
-**Architettura output:**
-```
-CLAUDE.md                        ← leggero: org type, API version, comandi deploy, oggetti chiave (1-2 righe ciascuno)
-.claude/rules/
-  apex-rules.md                  ← naming, pattern trigger/handler/service, logging, error handling
-  testing-rules.md               ← coverage minima, data setup, cosa evitare
-  metadata-rules.md              ← API names, picklist, field conventions
-.claude/context/
-  _index.md                      ← indice di tutti i componenti analizzati (caricato dalle skill, non da CLAUDE.md)
-  [ComponentName].md             ← contesto compatto per singolo componente, caricato on-demand
-```
-
-**Regola chiave:** `CLAUDE.md` deve restare leggero — viene caricato ad ogni sessione e ruba contesto. I dettagli stanno in `.claude/` e vengono letti dalle skill solo quando servono.
-
-**Sub-agenti paralleli:**
-- `sf-folder-scanner` (nuovo) — struttura repo, sfdx-project.json, package.json
-- `sf-apex-pattern-scanner` (nuovo) — framework trigger, naming conventions, logging pattern
-- `sf-integration-scanner` (già esistente) — named credentials, remote sites, callout patterns
-- `sf-test-analyzer` (già esistente) — convenzioni test, coverage minima
-
-**File da creare:**
-- `skills/sf-init-project/SKILL.md`
-- `skills/sf-init-project/README.md`
-- `agents/sf-folder-scanner.md`
-- `agents/sf-apex-pattern-scanner.md`
-
----
-
 ---
 
 ## Skill scartate ❌
@@ -126,6 +94,8 @@ Procedura per allineare i branch git con lo stato reale delle org Salesforce (re
 | `sf-code-analyzer` | sf-code-review | Explore |
 | `sf-optimization-analyzer` | sf-code-review | Explore |
 | `sf-object-scanner` | sf-documentation | Explore |
+| `sf-folder-scanner` | sf-init-project | Explore + Bash |
+| `sf-apex-pattern-scanner` | sf-init-project | Explore |
 | `sf-trigger-scanner` | sf-process-discovery | Explore |
 | `sf-flow-scanner` | sf-process-discovery, sf-code-explorer | Explore |
 | `sf-validation-scanner` | sf-process-discovery | Explore |

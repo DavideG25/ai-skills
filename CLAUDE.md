@@ -20,6 +20,7 @@ settings.json
 | `sf-code-explorer` | Spiega una classe/trigger/Flow e mappa le dipendenze, produce un documento | `skills/sf-code-explorer/README.md` |
 | `sf-code-review` | Review interattiva del codice Apex: problemi tecnici, dipendenze, ottimizzazioni | `skills/sf-code-review/README.md` |
 | `sf-documentation` | Documenta un oggetto Salesforce o un processo di business | `skills/sf-documentation/README.md` |
+| `sf-init-project` | Inizializza CLAUDE.md e `.claude/rules/` per un progetto Salesforce | `skills/sf-init-project/README.md` |
 
 ## Come usare questo repo
 
