@@ -52,3 +52,12 @@ Le skills si aggiornano indipendentemente. Sostituisci i file copiati con le ver
 
 Vedi `ROADMAP` per il dettaglio completo.
 
+## Contribuire
+
+Il repo è pubblico in lettura. Per contribuire:
+
+- **Lettura**: libera per tutti
+- **Modifiche**: solo tramite Pull Request da un branch dedicato
+- **Merge su master**: richiede approvazione del maintainer
+
+Push diretti su master sono bloccati.
