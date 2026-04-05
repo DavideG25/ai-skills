@@ -27,6 +27,9 @@ Analizza una classe Apex, trigger o Flow e produce un documento strutturato (sez
 ### `sf-code-review`
 Review interattiva del codice Apex. Fa due domande (scope + focus), poi analizza solo le sezioni selezionate: problemi tecnici, dipendenze esterne, ottimizzazioni. Report strutturato con severità e raccomandazione finale. Non descrive il codice — trova solo problemi e miglioramenti.
 
+### `sf-documentation`
+Produce un documento strutturato per un oggetto Salesforce o un processo di business. Sezione funzionale in linguaggio business + sezione tecnica con automazioni, campi, dipendenze. Output `.md` + `.docx` opzionale. Salva contesto in `.claude/context/` per uso futuro dalle altre skill.
+
 ### `comprimi-pdf`
 Utility generale per comprimere PDF pesanti da mandare via email.
 
@@ -101,18 +104,6 @@ CLAUDE.md                        ← leggero: org type, API version, comandi dep
 
 ---
 
-### `sf-documentation`
-Documenta un oggetto Salesforce o un processo di business. Input: nome oggetto o descrizione processo. Output: documento `.md` + `.docx` opzionale con sezione tecnica e sezione funzionale.
-
-**Sub-agenti:**
-- `sf-object-scanner` (nuovo) — legge metadata oggetto: campi, relazioni, picklist, validation rules
-- Tutti gli scanner esistenti di `sf-process-discovery` per la parte automazioni
-
-**File da creare:**
-- `skills/sf-documentation/SKILL.md`
-- `skills/sf-documentation/README.md`
-- `agents/sf-object-scanner.md`
-
 ---
 
 ## Skill scartate ❌
@@ -134,6 +125,7 @@ Procedura per allineare i branch git con lo stato reale delle org Salesforce (re
 | `sf-dependency-scanner` | sf-code-explorer | Explore |
 | `sf-code-analyzer` | sf-code-review | Explore |
 | `sf-optimization-analyzer` | sf-code-review | Explore |
+| `sf-object-scanner` | sf-documentation | Explore |
 | `sf-trigger-scanner` | sf-process-discovery | Explore |
 | `sf-flow-scanner` | sf-process-discovery, sf-code-explorer | Explore |
 | `sf-validation-scanner` | sf-process-discovery | Explore |
