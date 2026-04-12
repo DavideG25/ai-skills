@@ -21,6 +21,7 @@ settings.json
 | `sf-code-review` | Review interattiva del codice Apex: problemi tecnici, dipendenze, ottimizzazioni | `skills/sf-code-review/README.md` |
 | `sf-documentation` | Documenta un oggetto Salesforce o un processo di business | `skills/sf-documentation/README.md` |
 | `sf-init-project` | Inizializza CLAUDE.md e `.claude/rules/` per un progetto Salesforce | `skills/sf-init-project/README.md` |
+| `sf-log-analyzer` | Analizza debug log Salesforce per trovare errori e deviazioni di flusso | `skills/sf-log-analyzer/README.md` |
 | `comprimi-pdf` | Comprime PDF pesanti per invio via email | `skills/comprimi-pdf/README.md` |
 
 ## Come usare questo repo
