@@ -9,11 +9,6 @@ import type {
   StructuredOutputPayload,
 } from '../types'
 
-interface UseRoomOptions {
-  localName: string
-  localRole: string
-}
-
 interface UseRoomReturn {
   phase: RoomPhase
   roomCode: string | null
@@ -21,27 +16,23 @@ interface UseRoomReturn {
   participants: Participant[]
   structuredOutput: string
   isCreator: boolean
-  createRoom: (code: string) => void
-  joinRoom: (code: string) => void
+  peerError: string
+  createRoom: (code: string, name: string, role: string) => void
+  joinRoom: (code: string, name: string, role: string) => void
   updateLocalContent: (content: string) => void
   structureAndBroadcast: (markdown: string) => void
   closeRoom: () => void
   reset: () => void
 }
 
-const PEER_SERVER_CONFIG = {
-  host: 'peerjs-server.herokuapp.com',
-  port: 443,
-  secure: true,
-}
-
-export function useRoom({ localName, localRole }: UseRoomOptions): UseRoomReturn {
+export function useRoom(): UseRoomReturn {
   const [phase, setPhase] = useState<RoomPhase>('lobby')
   const [roomCode, setRoomCode] = useState<string | null>(null)
   const [localPeerId, setLocalPeerId] = useState<string | null>(null)
   const [participants, setParticipants] = useState<Participant[]>([])
   const [structuredOutput, setStructuredOutput] = useState('')
   const [isCreator, setIsCreator] = useState(false)
+  const [peerError, setPeerError] = useState('')
 
   const peerRef = useRef<Peer | null>(null)
   const connectionsRef = useRef<Map<string, DataConnection>>(new Map())
@@ -92,8 +83,9 @@ export function useRoom({ localName, localRole }: UseRoomOptions): UseRoomReturn
   )
 
   const createRoom = useCallback(
-    (code: string) => {
-      const peer = new Peer(code, PEER_SERVER_CONFIG)
+    (code: string, name: string, role: string) => {
+      setPeerError('')
+      const peer = new Peer(code)
       peerRef.current = peer
 
       peer.on('open', (id) => {
@@ -102,29 +94,25 @@ export function useRoom({ localName, localRole }: UseRoomOptions): UseRoomReturn
         setIsCreator(true)
         setPhase('room')
         setParticipants([
-          { peerId: id, name: localName, role: localRole, content: '', isLocal: true },
+          { peerId: id, name, role, content: '', isLocal: true },
         ])
       })
 
       peer.on('connection', (conn) => {
         setupConnection(conn)
-        conn.on('open', () => {
-          const joinMsg: PeerMessage = {
-            type: 'join',
-            payload: { peerId: conn.peer, name: '', role: '' } as JoinPayload,
-          }
-          void joinMsg
-        })
       })
 
-      peer.on('error', console.error)
+      peer.on('error', (err) => {
+        setPeerError(`Errore connessione: ${err.type}. Prova con un codice diverso.`)
+      })
     },
-    [localName, localRole, setupConnection],
+    [setupConnection],
   )
 
   const joinRoom = useCallback(
-    (code: string) => {
-      const peer = new Peer(PEER_SERVER_CONFIG)
+    (code: string, name: string, role: string) => {
+      setPeerError('')
+      const peer = new Peer()
       peerRef.current = peer
 
       peer.on('open', (id) => {
@@ -132,7 +120,7 @@ export function useRoom({ localName, localRole }: UseRoomOptions): UseRoomReturn
         setRoomCode(code)
         setPhase('room')
         setParticipants([
-          { peerId: id, name: localName, role: localRole, content: '', isLocal: true },
+          { peerId: id, name, role, content: '', isLocal: true },
         ])
 
         const conn = peer.connect(code)
@@ -141,7 +129,7 @@ export function useRoom({ localName, localRole }: UseRoomOptions): UseRoomReturn
         conn.on('open', () => {
           const msg: PeerMessage = {
             type: 'join',
-            payload: { peerId: id, name: localName, role: localRole } satisfies JoinPayload,
+            payload: { peerId: id, name, role } satisfies JoinPayload,
           }
           conn.send(msg)
         })
@@ -151,9 +139,11 @@ export function useRoom({ localName, localRole }: UseRoomOptions): UseRoomReturn
         setupConnection(conn)
       })
 
-      peer.on('error', console.error)
+      peer.on('error', (err) => {
+        setPeerError(`Errore connessione: ${err.type}`)
+      })
     },
-    [localName, localRole, setupConnection],
+    [setupConnection],
   )
 
   const updateLocalContent = useCallback(
@@ -201,6 +191,7 @@ export function useRoom({ localName, localRole }: UseRoomOptions): UseRoomReturn
     setParticipants([])
     setStructuredOutput('')
     setIsCreator(false)
+    setPeerError('')
   }, [])
 
   useEffect(() => {
@@ -216,6 +207,7 @@ export function useRoom({ localName, localRole }: UseRoomOptions): UseRoomReturn
     participants,
     structuredOutput,
     isCreator,
+    peerError,
     createRoom,
     joinRoom,
     updateLocalContent,
