@@ -1,16 +1,29 @@
 import { useState, useEffect } from 'react'
 import { generateRoomCode } from '../lib/roomCode'
 
+const ROLES = [
+  'Moderatore',
+  'Product Manager',
+  'Designer',
+  'Developer',
+  'Tech Lead',
+  'Stakeholder',
+  'Marketing',
+  'Sales',
+  'Altro',
+]
+
 interface LobbyProps {
   onCreateRoom: (code: string, name: string, role: string) => void
   onJoinRoom: (code: string, name: string, role: string) => void
   onApiKeySet: (key: string) => void
   savedApiKey: string
+  peerError: string
 }
 
-export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey }: LobbyProps) {
+export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey, peerError }: LobbyProps) {
   const [name, setName] = useState('')
-  const [role, setRole] = useState('')
+  const [role, setRole] = useState(ROLES[0])
   const [joinCode, setJoinCode] = useState('')
   const [apiKey, setApiKey] = useState(savedApiKey)
   const [mode, setMode] = useState<'create' | 'join'>('create')
@@ -28,13 +41,13 @@ export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey }: Lo
     if (!name.trim() || !apiKey.trim()) return
     onApiKeySet(apiKey.trim())
     const code = generateRoomCode()
-    onCreateRoom(code, name.trim(), role.trim() || 'Partecipante')
+    onCreateRoom(code, name.trim(), role)
   }
 
   const handleJoin = () => {
     if (!name.trim() || !joinCode.trim()) return
     if (apiKey.trim()) onApiKeySet(apiKey.trim())
-    onJoinRoom(joinCode.trim(), name.trim(), role.trim() || 'Partecipante')
+    onJoinRoom(joinCode.trim(), name.trim(), role)
   }
 
   return (
@@ -73,18 +86,21 @@ export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey }: Lo
               onChange={(e) => setName(e.target.value)}
               placeholder="Es. Mario Rossi"
               autoFocus
+              autoComplete="off"
             />
           </div>
 
           <div className="field">
             <label htmlFor="role">Ruolo</label>
-            <input
+            <select
               id="role"
-              type="text"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              placeholder="Es. Product Manager"
-            />
+            >
+              {ROLES.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
           </div>
 
           {mode === 'join' && (
@@ -96,6 +112,9 @@ export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey }: Lo
                 value={joinCode}
                 onChange={(e) => setJoinCode(e.target.value)}
                 placeholder="Es. swift-moon-427"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
               />
             </div>
           )}
@@ -109,6 +128,7 @@ export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey }: Lo
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder="sk-ant-..."
+                autoComplete="off"
               />
               <span className="hint">Usata solo localmente, non viene salvata sul server</span>
             </div>
@@ -123,11 +143,14 @@ export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey }: Lo
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder="sk-ant-..."
+                autoComplete="off"
               />
               <span className="hint">Necessaria solo se vuoi premere "Struttura"</span>
             </div>
           )}
         </div>
+
+        {peerError && <p className="error-msg" style={{ marginBottom: '12px' }}>{peerError}</p>}
 
         <button
           type="button"

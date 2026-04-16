@@ -7,28 +7,22 @@ import { useRoom } from './hooks/useRoom'
 import { structureNotes } from './lib/claude'
 
 export default function App() {
-  const [localName, setLocalName] = useState('')
-  const [localRole, setLocalRole] = useState('')
   const [apiKey, setApiKey] = useState(() => sessionStorage.getItem('sn-api-key') ?? '')
   const [isStructuring, setIsStructuring] = useState(false)
   const [structureError, setStructureError] = useState('')
 
-  const room = useRoom({ localName, localRole })
+  const room = useRoom()
 
   const handleCreateRoom = useCallback(
     (code: string, name: string, role: string) => {
-      setLocalName(name)
-      setLocalRole(role)
-      room.createRoom(code)
+      room.createRoom(code, name, role)
     },
     [room],
   )
 
   const handleJoinRoom = useCallback(
     (code: string, name: string, role: string) => {
-      setLocalName(name)
-      setLocalRole(role)
-      room.joinRoom(code)
+      room.joinRoom(code, name, role)
     },
     [room],
   )
@@ -58,6 +52,7 @@ export default function App() {
         onJoinRoom={handleJoinRoom}
         onApiKeySet={handleApiKeySet}
         savedApiKey={apiKey}
+        peerError={room.peerError}
       />
     )
   }
@@ -80,6 +75,10 @@ export default function App() {
     <div className="app-layout">
       {room.roomCode && (
         <RoomHeader roomCode={room.roomCode} participantCount={room.participants.length} />
+      )}
+
+      {room.peerError && (
+        <div className="peer-error-banner">{room.peerError}</div>
       )}
 
       <main className="main-content">
