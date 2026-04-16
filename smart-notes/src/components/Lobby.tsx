@@ -13,20 +13,27 @@ const ROLES = [
   'Altro',
 ]
 
+interface SavedSession {
+  name: string
+  role: string
+  roomCode: string
+}
+
 interface LobbyProps {
   onCreateRoom: (code: string, name: string, role: string) => void
   onJoinRoom: (code: string, name: string, role: string) => void
   onApiKeySet: (key: string) => void
   savedApiKey: string
+  savedSession: SavedSession | null
   peerError: string
 }
 
-export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey, peerError }: LobbyProps) {
-  const [name, setName] = useState('')
-  const [role, setRole] = useState(ROLES[0])
-  const [joinCode, setJoinCode] = useState('')
+export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey, savedSession, peerError }: LobbyProps) {
+  const [name, setName] = useState(savedSession?.name ?? '')
+  const [role, setRole] = useState(savedSession?.role ?? ROLES[0])
+  const [joinCode, setJoinCode] = useState(savedSession?.roomCode ?? '')
   const [apiKey, setApiKey] = useState(savedApiKey)
-  const [mode, setMode] = useState<'create' | 'join'>('create')
+  const [mode, setMode] = useState<'create' | 'join'>(savedSession ? 'join' : 'create')
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)

@@ -6,15 +6,43 @@ import { StructuredOutput } from './components/StructuredOutput'
 import { useRoom } from './hooks/useRoom'
 import { structureNotes } from './lib/claude'
 
+const LS_SESSION = 'sn-session'
+
+interface SavedSession {
+  name: string
+  role: string
+  roomCode: string
+}
+
+function loadSession(): SavedSession | null {
+  try {
+    const raw = localStorage.getItem(LS_SESSION)
+    return raw ? (JSON.parse(raw) as SavedSession) : null
+  } catch {
+    return null
+  }
+}
+
+function saveSession(data: SavedSession) {
+  localStorage.setItem(LS_SESSION, JSON.stringify(data))
+}
+
+function clearSession() {
+  localStorage.removeItem(LS_SESSION)
+  localStorage.removeItem('sn-editor-content')
+}
+
 export default function App() {
   const [apiKey, setApiKey] = useState(() => sessionStorage.getItem('sn-api-key') ?? '')
   const [isStructuring, setIsStructuring] = useState(false)
   const [structureError, setStructureError] = useState('')
 
   const room = useRoom()
+  const savedSession = loadSession()
 
   const handleCreateRoom = useCallback(
     (code: string, name: string, role: string) => {
+      saveSession({ name, role, roomCode: code })
       room.createRoom(code, name, role)
     },
     [room],
@@ -22,6 +50,7 @@ export default function App() {
 
   const handleJoinRoom = useCallback(
     (code: string, name: string, role: string) => {
+      saveSession({ name, role, roomCode: code })
       room.joinRoom(code, name, role)
     },
     [room],
@@ -45,6 +74,11 @@ export default function App() {
     }
   }, [room, apiKey])
 
+  const handleReset = useCallback(() => {
+    clearSession()
+    room.reset()
+  }, [room])
+
   if (room.phase === 'lobby') {
     return (
       <Lobby
@@ -52,6 +86,7 @@ export default function App() {
         onJoinRoom={handleJoinRoom}
         onApiKeySet={handleApiKeySet}
         savedApiKey={apiKey}
+        savedSession={savedSession}
         peerError={room.peerError}
       />
     )
@@ -63,7 +98,7 @@ export default function App() {
         <div className="card">
           <h2>Stanza chiusa</h2>
           <p>Il creatore ha chiuso la stanza. La sessione è terminata.</p>
-          <button type="button" className="btn-primary" onClick={room.reset}>
+          <button type="button" className="btn-primary" onClick={handleReset}>
             Torna alla home
           </button>
         </div>
