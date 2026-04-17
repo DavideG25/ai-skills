@@ -1,9 +1,6 @@
 import type { Participant } from '../types'
 
-export async function structureNotes(
-  participants: Participant[],
-  apiKey: string,
-): Promise<string> {
+export async function structureNotes(participants: Participant[]): Promise<string> {
   const response = await fetch('/api/structure', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -11,7 +8,6 @@ export async function structureNotes(
       participants: participants
         .filter((p) => p.content.trim())
         .map((p) => ({ name: p.name, role: p.role, content: p.content })),
-      apiKey,
     }),
   })
 

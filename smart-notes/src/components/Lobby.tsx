@@ -22,17 +22,14 @@ interface SavedSession {
 interface LobbyProps {
   onCreateRoom: (code: string, name: string, role: string) => void
   onJoinRoom: (code: string, name: string, role: string) => void
-  onApiKeySet: (key: string) => void
-  savedApiKey: string
   savedSession: SavedSession | null
   peerError: string
 }
 
-export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey, savedSession, peerError }: LobbyProps) {
+export function Lobby({ onCreateRoom, onJoinRoom, savedSession, peerError }: LobbyProps) {
   const [name, setName] = useState(savedSession?.name ?? '')
   const [role, setRole] = useState(savedSession?.role ?? ROLES[0])
   const [joinCode, setJoinCode] = useState(savedSession?.roomCode ?? '')
-  const [apiKey, setApiKey] = useState(savedApiKey)
   const [mode, setMode] = useState<'create' | 'join'>(savedSession ? 'join' : 'create')
 
   useEffect(() => {
@@ -45,21 +42,15 @@ export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey, save
   }, [])
 
   const handleCreate = () => {
-    if (!name.trim() || !apiKey.trim()) return
-    onApiKeySet(apiKey.trim())
+    if (!name.trim()) return
     const code = generateRoomCode()
     onCreateRoom(code, name.trim(), role)
   }
 
   const handleJoin = () => {
-    if (!name.trim() || !joinCode.trim() || !apiKey.trim()) return
-    onApiKeySet(apiKey.trim())
+    if (!name.trim() || !joinCode.trim()) return
     onJoinRoom(joinCode.trim(), name.trim(), role)
   }
-
-  const canSubmit = mode === 'create'
-    ? name.trim() && apiKey.trim()
-    : name.trim() && joinCode.trim() && apiKey.trim()
 
   return (
     <div className="lobby">
@@ -103,11 +94,7 @@ export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey, save
 
           <div className="field">
             <label htmlFor="role">Ruolo</label>
-            <select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-            >
+            <select id="role" value={role} onChange={(e) => setRole(e.target.value)}>
               {ROLES.map((r) => (
                 <option key={r} value={r}>{r}</option>
               ))}
@@ -129,19 +116,6 @@ export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey, save
               />
             </div>
           )}
-
-          <div className="field">
-            <label htmlFor="api-key">Claude API Key *</label>
-            <input
-              id="api-key"
-              type="password"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder="sk-ant-..."
-              autoComplete="off"
-            />
-            <span className="hint">Salvata localmente nel browser, non inviata a nessun server esterno</span>
-          </div>
         </div>
 
         {peerError && <p className="error-msg" style={{ marginBottom: '12px' }}>{peerError}</p>}
@@ -150,7 +124,7 @@ export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey, save
           type="button"
           className="btn-primary"
           onClick={mode === 'create' ? handleCreate : handleJoin}
-          disabled={!canSubmit}
+          disabled={mode === 'create' ? !name.trim() : !name.trim() || !joinCode.trim()}
         >
           {mode === 'create' ? 'Crea stanza' : 'Entra nella stanza'}
         </button>

@@ -33,7 +33,6 @@ function clearSession() {
 }
 
 export default function App() {
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('sn-api-key') ?? '')
   const [isStructuring, setIsStructuring] = useState(false)
   const [structureError, setStructureError] = useState('')
 
@@ -56,23 +55,18 @@ export default function App() {
     [room],
   )
 
-  const handleApiKeySet = useCallback((key: string) => {
-    setApiKey(key)
-    localStorage.setItem('sn-api-key', key)
-  }, [])
-
   const handleStructure = useCallback(async () => {
     setStructureError('')
     setIsStructuring(true)
     try {
-      const markdown = await structureNotes(room.participants, apiKey)
+      const markdown = await structureNotes(room.participants)
       room.structureAndBroadcast(markdown)
     } catch (err) {
       setStructureError(err instanceof Error ? err.message : 'Errore sconosciuto')
     } finally {
       setIsStructuring(false)
     }
-  }, [room, apiKey])
+  }, [room])
 
   const handleReset = useCallback(() => {
     clearSession()
@@ -84,8 +78,6 @@ export default function App() {
       <Lobby
         onCreateRoom={handleCreateRoom}
         onJoinRoom={handleJoinRoom}
-        onApiKeySet={handleApiKeySet}
-        savedApiKey={apiKey}
         savedSession={savedSession}
         peerError={room.peerError}
       />
