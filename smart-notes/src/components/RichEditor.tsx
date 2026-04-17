@@ -3,6 +3,18 @@ import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
 import Highlight from '@tiptap/extension-highlight'
 import { useEffect } from 'react'
+import type { JSONContent } from '@tiptap/core'
+
+const STORAGE_KEY = 'sn-editor-content'
+
+function loadSavedContent(): JSONContent | undefined {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? (JSON.parse(raw) as JSONContent) : undefined
+  } catch {
+    return undefined
+  }
+}
 
 interface RichEditorProps {
   onChange: (text: string) => void
@@ -12,11 +24,22 @@ interface RichEditorProps {
 export function RichEditor({ onChange, placeholder }: RichEditorProps) {
   const editor = useEditor({
     extensions: [StarterKit, Underline, Highlight],
-    content: '',
+    content: loadSavedContent() ?? '',
     onUpdate({ editor }) {
+      const json = editor.getJSON()
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(json))
       onChange(editor.getText())
     },
   })
+
+  useEffect(() => {
+    if (editor) {
+      const saved = loadSavedContent()
+      if (saved) {
+        onChange(editor.getText())
+      }
+    }
+  }, [editor, onChange])
 
   useEffect(() => {
     return () => {
