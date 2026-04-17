@@ -11,22 +11,27 @@ export default async function handler(req: Request): Promise<Response> {
     return new Response('Method not allowed', { status: 405 })
   }
 
-  const { participants, apiKey } = await req.json() as {
-    participants: Participant[]
-    apiKey: string
-  }
-
+  const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'API key mancante' }), {
-      status: 400,
+    return new Response(JSON.stringify({ error: 'ANTHROPIC_API_KEY non configurata sul server' }), {
+      status: 500,
       headers: { 'Content-Type': 'application/json' },
     })
   }
+
+  const { participants } = await req.json() as { participants: Participant[] }
 
   const blocks = participants
     .filter((p) => p.content.trim())
     .map((p) => `### ${p.name} (${p.role})\n${p.content}`)
     .join('\n\n')
+
+  if (!blocks) {
+    return new Response(JSON.stringify({ error: 'Nessun contenuto da strutturare' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
 
   const prompt = `Sei un assistente che struttura appunti collaborativi di riunione.
 
