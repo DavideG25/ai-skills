@@ -52,10 +52,14 @@ export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey, save
   }
 
   const handleJoin = () => {
-    if (!name.trim() || !joinCode.trim()) return
-    if (apiKey.trim()) onApiKeySet(apiKey.trim())
+    if (!name.trim() || !joinCode.trim() || !apiKey.trim()) return
+    onApiKeySet(apiKey.trim())
     onJoinRoom(joinCode.trim(), name.trim(), role)
   }
+
+  const canSubmit = mode === 'create'
+    ? name.trim() && apiKey.trim()
+    : name.trim() && joinCode.trim() && apiKey.trim()
 
   return (
     <div className="lobby">
@@ -126,35 +130,18 @@ export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey, save
             </div>
           )}
 
-          {mode === 'create' && (
-            <div className="field">
-              <label htmlFor="api-key">Claude API Key *</label>
-              <input
-                id="api-key"
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="sk-ant-..."
-                autoComplete="off"
-              />
-              <span className="hint">Usata solo localmente, non viene salvata sul server</span>
-            </div>
-          )}
-
-          {mode === 'join' && !savedApiKey && (
-            <div className="field">
-              <label htmlFor="api-key-join">Claude API Key (opzionale)</label>
-              <input
-                id="api-key-join"
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="sk-ant-..."
-                autoComplete="off"
-              />
-              <span className="hint">Necessaria solo se vuoi premere "Struttura"</span>
-            </div>
-          )}
+          <div className="field">
+            <label htmlFor="api-key">Claude API Key *</label>
+            <input
+              id="api-key"
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="sk-ant-..."
+              autoComplete="off"
+            />
+            <span className="hint">Salvata localmente nel browser, non inviata a nessun server esterno</span>
+          </div>
         </div>
 
         {peerError && <p className="error-msg" style={{ marginBottom: '12px' }}>{peerError}</p>}
@@ -163,7 +150,7 @@ export function Lobby({ onCreateRoom, onJoinRoom, onApiKeySet, savedApiKey, save
           type="button"
           className="btn-primary"
           onClick={mode === 'create' ? handleCreate : handleJoin}
-          disabled={mode === 'create' ? !name.trim() || !apiKey.trim() : !name.trim() || !joinCode.trim()}
+          disabled={!canSubmit}
         >
           {mode === 'create' ? 'Crea stanza' : 'Entra nella stanza'}
         </button>

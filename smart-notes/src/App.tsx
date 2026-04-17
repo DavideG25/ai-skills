@@ -33,7 +33,7 @@ function clearSession() {
 }
 
 export default function App() {
-  const [apiKey, setApiKey] = useState(() => sessionStorage.getItem('sn-api-key') ?? '')
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('sn-api-key') ?? '')
   const [isStructuring, setIsStructuring] = useState(false)
   const [structureError, setStructureError] = useState('')
 
@@ -58,7 +58,7 @@ export default function App() {
 
   const handleApiKeySet = useCallback((key: string) => {
     setApiKey(key)
-    sessionStorage.setItem('sn-api-key', key)
+    localStorage.setItem('sn-api-key', key)
   }, [])
 
   const handleStructure = useCallback(async () => {
