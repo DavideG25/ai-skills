@@ -7,7 +7,11 @@
       "Bash(sf *)",
       "Bash(cat *)",
       "Bash(grep *)",
-      "Bash(head *)"
+      "Bash(head *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(rm *)",
+      "Bash(echo *)"
     ]
   }
 }
