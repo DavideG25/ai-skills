@@ -115,13 +115,12 @@ git checkout feature/TICKET && git fetch origin && git merge origin/BRANCH_MAIN 
 
 ### to-quality
 ```
-git checkout feature/TICKET && git fetch origin && git merge origin/BRANCH_MAIN --no-edit && git push origin feature/TICKET && git checkout -b qualitymerge/TICKET && git fetch origin && git merge origin/BRANCH_QUALITY --no-edit && git push -u origin qualitymerge/TICKET
+git checkout feature/TICKET && git fetch origin && git merge origin/BRANCH_MAIN --no-edit && git push origin feature/TICKET && git checkout -b qualitymerge/TICKET && git fetch origin && git merge origin/BRANCH_QUALITY --no-edit && git push -u origin qualitymerge/TICKET && git checkout feature/TICKET
 ```
 
 ### quality-sync
 ```
-git checkout qualitymerge/TICKET && git fetch origin && git merge origin/BRANCH_QUALITY --no-edit && git push origin qualitymerge/TICKET
-```
+git checkout qualitymerge/TICKET && git fetch origin && git merge origin/BRANCH_QUALITY --no-edit && git push origin qualitymerge/TICKET && git checkout feature/TICKET```
 
 ### to-prod
 ```
