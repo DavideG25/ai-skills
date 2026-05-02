@@ -36,6 +36,9 @@ Inizializza la configurazione Claude Code per un progetto Salesforce. Su repo es
 ### `sf-log-analyzer`
 Analizza un debug log Salesforce per trovare la causa di un problema. Se trova errori risale la catena trigger → handler → service fino alla riga esatta. Se il log è pulito ma il sintomo c'è, trova dove il flusso ha deviato e perché. Si integra con `sf-execution-map.md` e `sf-test-learnings.md`.
 
+### `sf-coverage-gap`
+Analizza il gap di coverage tra una classe Apex e la sua test class senza deployare. Stima la coverage attuale, trova metodi e branch scoperti ordinati per impatto, e decide autonomamente se risolvere il gap o presentare il report. Target: 80%.
+
 ### `comprimi-pdf`
 Utility generale per comprimere PDF pesanti da mandare via email.
 
@@ -102,6 +105,9 @@ Procedura per allineare i branch git con lo stato reale delle org Salesforce (re
 | `sf-error-tracer` | sf-log-analyzer | Explore |
 | `sf-flow-tracer` | sf-log-analyzer | Explore |
 | `sf-code-linker` | sf-log-analyzer | Explore |
+| `sf-coverage-method-scanner` | sf-coverage-gap | Explore |
+| `sf-coverage-branch-scanner` | sf-coverage-gap | Explore |
+| `sf-api-scanner` | sf-apex-testing, sf-new-trigger | Explore |
 | `sf-trigger-scanner` | sf-process-discovery | Explore |
 | `sf-flow-scanner` | sf-process-discovery, sf-code-explorer | Explore |
 | `sf-validation-scanner` | sf-process-discovery | Explore |
