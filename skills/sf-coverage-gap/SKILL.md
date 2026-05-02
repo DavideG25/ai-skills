@@ -119,6 +119,14 @@ C. Altro
 
 Wait for the user's choice before acting.
 
+## Step 3b: Load project API map
+
+Before writing any Apex code, spawn **sf-api-scanner** (agent: Explore).
+It returns available methods, custom types, custom objects, and exceptions in this project.
+Use this map when writing code — don't invent method signatures or types that don't exist here.
+
+If Task tool is NOT available: run the grep commands from sf-api-scanner manually before writing code.
+
 ## Step 4: If fixing directly
 
 Write the missing test methods following the existing test class style:
