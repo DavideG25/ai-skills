@@ -22,6 +22,7 @@ settings.json
 | `sf-documentation` | Documenta un oggetto Salesforce o un processo di business | `skills/sf-documentation/README.md` |
 | `sf-init-project` | Inizializza CLAUDE.md e `.claude/rules/` per un progetto Salesforce | `skills/sf-init-project/README.md` |
 | `sf-log-analyzer` | Analizza debug log Salesforce per trovare errori e deviazioni di flusso | `skills/sf-log-analyzer/README.md` |
+| `sf-coverage-gap` | Analizza il gap di coverage verso l'80% e decide se risolverlo o presentare il report | `skills/sf-coverage-gap/README.md` |
 | `comprimi-pdf` | Comprime PDF pesanti per invio via email | `skills/comprimi-pdf/README.md` |
 
 ## Come usare questo repo
