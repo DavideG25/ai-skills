@@ -1,8 +1,6 @@
-<b> Per importare le skills e agents su un progetto esistente, da terminale lanciare questi comandi: </b>
+<b> Per importare le skills e agents su un progetto esistente, da terminale lanciare questi comandi dalla root del tuo progetto Salesforce: </b>
 
-cd ..
-
-cd .claude
+mkdir -p .claude && cd .claude
 
 git init
 
